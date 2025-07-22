@@ -4,17 +4,35 @@ import { useEffect, useState } from "react";
 
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const [profile, setProfile] = useState<any>(null);
+  // Helper to get full image URL if needed
+  const getProfilePicUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith("/uploads/")) {
+      return `http://localhost:5000${url}`;
+    }
+    return url;
+  };
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    fetch(process.env.NEXT_PUBLIC_API_URL + "/profile", {
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    fetch(API_URL + "/profile", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Header profile fetch failed:", res.status, text);
+          throw new Error("Profile fetch failed");
+        }
+        return res.json();
+      })
       .then((data) => {
-        console.log("Profile API response:", data); // Debug log
+        // console.log("Header Profile API response:", data); // Debug log
         setProfile(data);
       });
   }, []);
@@ -49,7 +67,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         >
           {profile && profile.profile_picture ? (
             <img
-              src={profile.profile_picture}
+              src={getProfilePicUrl(profile.profile_picture)}
               alt="Profile"
               className="w-10 h-10 rounded-full object-cover border-2 border-blue-500 shadow"
               style={{ pointerEvents: "none" }}
@@ -87,7 +105,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                 </div>
                 {profile && profile.profile_picture ? (
                   <img
-                    src={profile.profile_picture}
+                    src={getProfilePicUrl(profile.profile_picture)}
                     alt="Profile"
                     className="w-16 h-16 rounded-full object-cover border-2 border-blue-500 shadow"
                   />
@@ -97,7 +115,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                   </div>
                 )}
                 <div className="w-full text-center mt-2">
-                  <div className="text-lg font-semibold text-gray-800">
+                  <div className="text-sm text-gray-800">
                     Username:{" "}
                     {profile && profile.username ? (
                       profile.username
@@ -132,19 +150,57 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                     const fileInput = (e.target as any).elements.profilePic;
                     const file = fileInput.files[0];
                     if (!file) return;
+                    setUploading(true);
                     const formData = new FormData();
                     formData.append("profile_picture", file);
                     const token = localStorage.getItem("token");
-                    await fetch(
-                      process.env.NEXT_PUBLIC_API_URL + "/profile/picture",
-                      {
-                        method: "POST",
-                        headers: { Authorization: `Bearer ${token}` },
-                        body: formData,
+                    const API_URL =
+                      process.env.NEXT_PUBLIC_API_URL ||
+                      "http://localhost:5000/api";
+                    try {
+                      const uploadRes = await fetch(
+                        API_URL + "/profile/picture",
+                        {
+                          method: "POST",
+                          body: formData,
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      );
+                      const uploadText = await uploadRes.text();
+                      console.log(
+                        "Profile picture upload response:",
+                        uploadRes.status,
+                        uploadText
+                      );
+                      if (!uploadRes.ok) {
+                        alert(
+                          "Failed to upload profile picture: " + uploadText
+                        );
+                        setUploading(false);
+                        return;
                       }
-                    );
-                    setShowProfileModal(false);
-                    window.location.reload();
+                      const res = await fetch(API_URL + "/profile", {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (!res.ok) {
+                        const text = await res.text();
+                        alert("Profile fetch failed: " + text);
+                        setUploading(false);
+                        return;
+                      }
+                      const data = await res.json();
+                      setProfile(data);
+                      setShowProfileModal(false);
+                    } catch (err) {
+                      alert(
+                        "An error occurred while uploading profile picture."
+                      );
+                      console.error(err);
+                    } finally {
+                      setUploading(false);
+                    }
                   }}
                 >
                   <label
@@ -158,13 +214,16 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                     name="profilePic"
                     id="profilePic"
                     accept="image/*"
+                    required
                     className="block w-full text-xs text-gray-600"
+                    disabled={uploading}
                   />
                   <button
                     type="submit"
                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition mt-1 w-full text-sm"
+                    disabled={uploading}
                   >
-                    Upload
+                    {uploading ? "Uploading..." : "Upload"}
                   </button>
                 </form>
               </div>

@@ -5,8 +5,8 @@ exports.submitRating = async (req, res) => {
   if (!user_id || !movie_id || !rating) {
     return res.status(400).json({ error: 'user_id, movie_id, and rating are required.' });
   }
-  if (rating < 1 || rating > 5) {
-    return res.status(400).json({ error: 'Rating must be between 1 and 5.' });
+  if (rating < 1 || rating > 10) {
+    return res.status(400).json({ error: 'Rating must be between 1 and 10.' });
   }
   try {
     const result = await pool.query(

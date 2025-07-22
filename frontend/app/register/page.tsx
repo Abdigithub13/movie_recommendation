@@ -37,7 +37,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen w-screen flex items-center justify-center bg-gray-100 fixed top-0 left-0 z-[9999]">
       <div className="bg-white p-8 rounded-2xl border-2 border-gray-300 shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
           Register

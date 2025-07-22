@@ -34,12 +34,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl border-2 border-gray-300 shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
+    <div className="min-h-screen w-screen flex items-center justify-center bg-gray-100 fixed top-0 left-0 z-[9999]">
+      <div className="bg-white p-10 rounded-2xl border-2 border-gray-300 shadow-lg w-full max-w-md min-h-[380px] flex flex-col justify-center gap-8">
+        <h2 className="text-2xl font-bold mb-4 text-center text-blue-700">
           Login
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <FiMail className="w-5 h-5 text-gray-400" />
@@ -75,7 +75,7 @@ export default function LoginPage() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-        <div className="mt-6 flex flex-col gap-2">
+        <div className="mt-4 flex flex-col gap-2">
           <button
             onClick={() => router.push("/register")}
             className="w-full bg-white border border-gray-300 text-blue-700 py-2 rounded-2xl hover:bg-gray-300 transition mt-2"
