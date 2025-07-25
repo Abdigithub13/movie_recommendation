@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const [profile, setProfile] = useState<any>(null);
-  // Helper to get full image URL if needed
   const getProfilePicUrl = (url: string) => {
     if (!url) return "";
     if (url.startsWith("/uploads/")) {

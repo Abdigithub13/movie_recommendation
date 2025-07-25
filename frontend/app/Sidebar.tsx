@@ -54,7 +54,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Menu button, always visible when sidebar is closed */}
       {!open && (
         <button
           className="fixed top-4 left-4 z-50 bg-white border border-gray-200 rounded-full p-2 shadow-lg"
@@ -65,7 +64,6 @@ export default function Sidebar() {
         </button>
       )}
 
-      {/* Sidebar, slides in/out on all screen sizes */}
       <aside
         className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col py-8 px-4 shadow-lg z-50 transition-transform duration-300 ${
           open ? "translate-x-0" : "-translate-x-full"

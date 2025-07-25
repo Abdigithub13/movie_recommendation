@@ -8,17 +8,15 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const handleMenuClick = () => setSidebarOpen((open) => !open);
 
   return (
     <div className="min-h-screen bg-gray-50 antialiased">
-      {/* Header can optionally receive onMenuClick if needed for mobile */}
-      <Header />
+      <Header onMenuClick={handleMenuClick} />
       <div className="flex">
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-        <main className="flex-1 p-8 transition-all duration-300 sm:ml-64">
-          {children}
-        </main>
+        {sidebarOpen && <Sidebar />}
+        <main className="flex-1 p-8">{children}</main>
       </div>
     </div>
   );

@@ -19,8 +19,6 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
-
-
 // Serve uploaded files statically
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

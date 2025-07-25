@@ -105,7 +105,7 @@ export default function MovieDetailsPage() {
               value={rating}
               onChange={(e) => setRating(e.target.value)}
               className="w-16 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Rate 1-5"
+              placeholder="Rate 1-10"
               required
             />
             <button
