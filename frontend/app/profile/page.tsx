@@ -10,7 +10,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
-  // Check if user is logged in and fetch profile data
+  // Check if user is logged in and fetch profile data info
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
