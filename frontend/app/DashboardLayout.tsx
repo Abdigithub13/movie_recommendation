@@ -3,6 +3,7 @@ import { useState } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 
+// DashboardLayout.tsx
 export default function DashboardLayout({
   children,
 }: {
