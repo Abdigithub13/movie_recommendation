@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { FiMenu, FiHome, FiSearch, FiUser, FiLogOut } from "react-icons/fi";
 import { useState } from "react";
 
+// Navigation links configuration
 const navLinks = [
   { href: "/profile", label: "Profile", icon: <FiUser /> },
   { href: "/", label: "Home", icon: <FiHome /> },
