@@ -11,7 +11,19 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
     }
     return url;
   };
-  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!showProfileDropdown) return;
+    const handleClick = (e: MouseEvent) => {
+      const dropdown = document.getElementById("profile-dropdown");
+      if (dropdown && !dropdown.contains(e.target as Node)) {
+        setShowProfileDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showProfileDropdown]);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -60,7 +72,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           tabIndex={0}
           onClick={(e) => {
             e.stopPropagation();
-            setShowProfileModal(true);
+            setShowProfileDropdown((prev) => !prev);
           }}
           aria-label="Show profile"
         >
@@ -81,151 +93,129 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             </div>
           )}
         </button>
-        {showProfileModal && (
+        {showProfileDropdown && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            onClick={() => setShowProfileModal(false)}
+            id="profile-dropdown"
+            className="absolute right-0 top-14 mt-2 w-72 bg-white rounded-xl shadow-xl p-5 z-50 border border-gray-200"
+            style={{ minWidth: 280 }}
           >
-            <div
-              className="bg-white rounded-xl shadow-xl p-8 relative min-w-[380px] max-w-[440px] w-full overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl"
-                onClick={() => setShowProfileModal(false)}
-                type="button"
-                aria-label="Close profile modal"
-              >
-                &times;
-              </button>
-              <div className="flex flex-col items-center gap-3">
-                <div className="text-xl font-bold text-blue-700 mb-1">
-                  Your Profile
+            <div className="flex flex-col items-center gap-3">
+              <div className="text-lg font-bold text-blue-700 mb-1">
+                Your Profile
+              </div>
+              {profile && profile.profile_picture ? (
+                <img
+                  src={getProfilePicUrl(profile.profile_picture)}
+                  alt="Profile"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-blue-500 shadow"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xl border-2 border-blue-500 shadow">
+                  {profile ? getInitials(profile.username) : "?"}
                 </div>
-                {profile && profile.profile_picture ? (
-                  <img
-                    src={getProfilePicUrl(profile.profile_picture)}
-                    alt="Profile"
-                    className="w-16 h-16 rounded-full object-cover border-2 border-blue-500 shadow"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-2xl border-2 border-blue-500 shadow">
-                    {profile ? getInitials(profile.username) : "?"}
+              )}
+              <div className="w-full text-center mt-2">
+                <div className="text-sm text-gray-800">
+                  Username:{" "}
+                  {profile && profile.username ? (
+                    profile.username
+                  ) : (
+                    <span className="text-gray-400">Not available</span>
+                  )}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Email:{" "}
+                  {profile && profile.email ? (
+                    profile.email
+                  ) : (
+                    <span className="text-gray-400">Not available</span>
+                  )}
+                </div>
+                {profile && profile.full_name && (
+                  <div className="text-sm text-gray-600">
+                    Name: {profile.full_name}
                   </div>
                 )}
-                <div className="w-full text-center mt-2">
-                  <div className="text-sm text-gray-800">
-                    Username:{" "}
-                    {profile && profile.username ? (
-                      profile.username
-                    ) : (
-                      <span className="text-gray-400">Not available</span>
-                    )}
+                {profile && profile.created_at && (
+                  <div className="text-xs text-gray-400 mt-1">
+                    Joined: {new Date(profile.created_at).toLocaleDateString()}
                   </div>
-                  <div className="text-sm text-gray-600">
-                    Email:{" "}
-                    {profile && profile.email ? (
-                      profile.email
-                    ) : (
-                      <span className="text-gray-400">Not available</span>
-                    )}
-                  </div>
-                  {profile && profile.full_name && (
-                    <div className="text-sm text-gray-600">
-                      Name: {profile.full_name}
-                    </div>
-                  )}
-                  {profile && profile.created_at && (
-                    <div className="text-xs text-gray-400 mt-1">
-                      Joined:{" "}
-                      {new Date(profile.created_at).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-                <form
-                  className="flex flex-col items-center gap-2 mt-2 w-full"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    const fileInput = (e.target as any).elements.profilePic;
-                    const file = fileInput.files[0];
-                    if (!file) return;
-                    setUploading(true);
-                    const formData = new FormData();
-                    formData.append("profile_picture", file);
-                    const token = localStorage.getItem("token");
-                    const API_URL =
-                      process.env.NEXT_PUBLIC_API_URL ||
-                      "http://localhost:5000/api";
-                    try {
-                      const uploadRes = await fetch(
-                        API_URL + "/profile/picture",
-                        {
-                          method: "POST",
-                          body: formData,
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                        }
-                      );
-                      const uploadText = await uploadRes.text();
-                      console.log(
-                        "Profile picture upload response:",
-                        uploadRes.status,
-                        uploadText
-                      );
-                      if (!uploadRes.ok) {
-                        alert(
-                          "Failed to upload profile picture: " + uploadText
-                        );
-                        setUploading(false);
-                        return;
-                      }
-                      const res = await fetch(API_URL + "/profile", {
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      if (!res.ok) {
-                        const text = await res.text();
-                        alert("Profile fetch failed: " + text);
-                        setUploading(false);
-                        return;
-                      }
-                      const data = await res.json();
-                      setProfile(data);
-                      setShowProfileModal(false);
-                    } catch (err) {
-                      alert(
-                        "An error occurred while uploading profile picture."
-                      );
-                      console.error(err);
-                    } finally {
-                      setUploading(false);
-                    }
-                  }}
-                >
-                  <label
-                    className="block text-xs font-medium text-gray-700 mb-1"
-                    htmlFor="profilePic"
-                  >
-                    Change Profile Picture
-                  </label>
-                  <input
-                    type="file"
-                    name="profilePic"
-                    id="profilePic"
-                    accept="image/*"
-                    required
-                    className="block w-full text-xs text-gray-600"
-                    disabled={uploading}
-                  />
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition mt-1 w-full text-sm"
-                    disabled={uploading}
-                  >
-                    {uploading ? "Uploading..." : "Upload"}
-                  </button>
-                </form>
+                )}
               </div>
+              <form
+                className="flex flex-col items-center gap-2 mt-2 w-full"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const fileInput = (e.target as any).elements.profilePic;
+                  const file = fileInput.files[0];
+                  if (!file) return;
+                  setUploading(true);
+                  const formData = new FormData();
+                  formData.append("profile_picture", file);
+                  const token = localStorage.getItem("token");
+                  const API_URL =
+                    process.env.NEXT_PUBLIC_API_URL ||
+                    "http://localhost:5000/api";
+                  try {
+                    const uploadRes = await fetch(
+                      API_URL + "/profile/picture",
+                      {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      }
+                    );
+                    const uploadText = await uploadRes.text();
+                    if (!uploadRes.ok) {
+                      alert("Failed to upload profile picture: " + uploadText);
+                      setUploading(false);
+                      return;
+                    }
+                    const res = await fetch(API_URL + "/profile", {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (!res.ok) {
+                      const text = await res.text();
+                      alert("Profile fetch failed: " + text);
+                      setUploading(false);
+                      return;
+                    }
+                    const data = await res.json();
+                    setProfile(data);
+                    setShowProfileDropdown(false);
+                  } catch (err) {
+                    alert("An error occurred while uploading profile picture.");
+                    console.error(err);
+                  } finally {
+                    setUploading(false);
+                  }
+                }}
+              >
+                <label
+                  className="block text-xs font-medium text-gray-700 mb-1"
+                  htmlFor="profilePic"
+                >
+                  Change Profile Picture
+                </label>
+                <input
+                  type="file"
+                  name="profilePic"
+                  id="profilePic"
+                  accept="image/*"
+                  required
+                  className="block w-full text-xs text-gray-600"
+                  disabled={uploading}
+                />
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition mt-1 w-full text-sm"
+                  disabled={uploading}
+                >
+                  {uploading ? "Uploading..." : "Upload"}
+                </button>
+              </form>
             </div>
           </div>
         )}

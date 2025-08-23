@@ -81,7 +81,9 @@ export default function HomePage() {
                   Director: {movie.director}
                 </span>
                 <span className="text-sm sm:text-base text-yellow-600 font-semibold flex items-center justify-center gap-1 mb-2">
-                  {movie.avg_rating ? movie.avg_rating.toFixed(1) : "N/A"}
+                  {movie.rating_count && Number(movie.rating_count) > 0
+                    ? Number(movie.avg_rating).toFixed(1)
+                    : "N/A"}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
