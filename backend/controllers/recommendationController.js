@@ -4,15 +4,18 @@ const pool = require("../db");
 exports.getRecommendations = async (req, res) => {
   try {
     const userId = req.user.userId;
-    // Get user preferences
-    const userResult = await pool.query(
-      "SELECT preferences FROM users WHERE id = $1",
+    // Get user preferences from user_preferences table
+    let preferredGenres = [];
+    const prefResult = await pool.query(
+      "SELECT preferred_genres FROM user_preferences WHERE user_id = $1",
       [userId]
     );
-    let preferredGenres = [];
-    if (userResult.rows.length && userResult.rows[0].preferences) {
-      const prefs = userResult.rows[0].preferences;
-      if (prefs.preferred_genres) preferredGenres = prefs.preferred_genres;
+    if (prefResult.rows.length && prefResult.rows[0].preferred_genres) {
+      // If preferred_genres is a comma-separated string, split it
+      preferredGenres = prefResult.rows[0].preferred_genres
+        .split(",")
+        .map((g) => g.trim())
+        .filter(Boolean);
     }
     // If no explicit preferences, infer from ratings
     if (!preferredGenres.length) {
