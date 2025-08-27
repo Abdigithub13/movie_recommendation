@@ -13,7 +13,7 @@ export default function DashboardLayout({
   const handleMenuClick = () => setSidebarOpen((open) => !open);
 
   return (
-    <div className="min-h-screen bg-gray-50 antialiased">
+    <div className="min-h-screen">
       <Header onMenuClick={handleMenuClick} />
       <div className="flex">
         {sidebarOpen && <Sidebar />}
