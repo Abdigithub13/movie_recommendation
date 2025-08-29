@@ -94,6 +94,7 @@ export default function ProfilePage() {
                   <span className="block text-xs text-gray-500">
                     {new Date(r.timestamp).toLocaleString()}
                   </span>
+                  // view details / rate button
                   <button
                     className="mt-2 text-blue-600 hover:underline text-xs sm:text-sm"
                     onClick={() => router.push(`/movie?id=${r.movie_id}`)}
