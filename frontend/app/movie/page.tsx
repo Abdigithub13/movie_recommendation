@@ -35,6 +35,7 @@ export default function MovieDetailsPage() {
     }
   }, [movieId]);
 
+  // handle rate
   const handleRate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
