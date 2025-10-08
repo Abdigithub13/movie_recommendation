@@ -1,36 +1,45 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
 export default function HomePage() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    fetch(`${API_URL}/recommendations`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => (res.ok ? res.json() : Promise.reject(res)))
-      .then((data) => {
-        // Accept { recommended: [...] }, { recommendations: [...] }, or array
-        if (Array.isArray(data)) {
-          setRecommendations(data);
-        } else if (data && Array.isArray(data.recommendations)) {
-          setRecommendations(data.recommendations);
-        } else if (data && Array.isArray(data.recommended)) {
-          setRecommendations(data.recommended);
-        } else {
-          setRecommendations([]);
-        }
+    setIsClient(true);
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
+      fetch(`${API_URL}/recommendations`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .catch(() => setError("Failed to load recommendations."))
-      .finally(() => setLoading(false));
-  }, []);
+        .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+        .then((data) => {
+          // Accept { recommended: [...] }, { recommendations: [...] }, or array
+          if (Array.isArray(data)) {
+            setRecommendations(data);
+          } else if (data && Array.isArray(data.recommendations)) {
+            setRecommendations(data.recommendations);
+          } else if (data && Array.isArray(data.recommended)) {
+            setRecommendations(data.recommended);
+          } else {
+            setRecommendations([]);
+          }
+        })
+        .catch(() => setError("Failed to load recommendations."))
+        .finally(() => setLoading(false));
+    }
+  }, [router]);
 
+  if (!isClient) return null;
   if (loading)
     return (
       <div className="flex min-h-screen items-center justify-center">
