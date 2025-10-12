@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
+// Movie details page
 export default function MovieDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
