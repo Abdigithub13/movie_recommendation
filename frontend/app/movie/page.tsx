@@ -16,6 +16,8 @@ export default function MovieDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
+  // Fetch movie details
+
   useEffect(() => {
     if (!movieId) return;
     fetch(`${API_URL}/movies/${movieId}`)
