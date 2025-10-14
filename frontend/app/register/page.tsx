@@ -92,6 +92,7 @@ export default function RegisterPage() {
             {loading ? "Registering..." : "Register"}
           </button>
         </form>
+        // login route
         <div className="mt-6 flex flex-col gap-2">
           <button
             onClick={() => router.push("/login")}
