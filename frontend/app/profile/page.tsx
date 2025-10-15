@@ -41,6 +41,8 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, [router]);
 
+  // Render loading, error, or profile data
+
   if (loading)
     return (
       <div className="flex min-h-screen items-center justify-center">
